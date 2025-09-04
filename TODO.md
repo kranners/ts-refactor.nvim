@@ -2,14 +2,14 @@
 
 ## Project setup
 
-- [ ] Init repository
-- [ ] Write the beginnings of a README
-- [ ] Write the TODO
-- [ ] Do an initial commit
+- [x] Init repository
+- [x] Write the beginnings of a README
+- [x] Write the TODO
+- [x] Do an initial commit
 
 ## To investigate
 
-- [ ] How do Neovim plugins work (the plugin folder?)
+- [x] How do Neovim plugins work (the plugin folder?)
 - [ ] How to read in and parse a treesitter AST
 - [ ] How to expose a command which runs a function
 - [ ] How to use `vim.ui.select` or `vim.ui` in general
@@ -17,7 +17,7 @@
 ## Plugin setup
 
 - [ ] Write a dummy plugin which can be `setup()`
-- [ ] Write a dummy command which prints hello world
+- [x] Write a dummy command which prints hello world
 - [ ] Write a dummy command which gets the current node using treesitter
 - [ ] Write a dummy command which makes a trivial AST edit and writes it back
 - [ ] Write a dummy command which displays a select menu and then does the trivial AST
