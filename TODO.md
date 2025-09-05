@@ -18,7 +18,7 @@
 
 - [ ] Write a dummy plugin which can be `setup()`
 - [x] Write a dummy command which prints hello world
-- [ ] Write a dummy command which gets the current node using treesitter
+- [x] Write a dummy command which gets the current node using treesitter
 - [ ] Write a dummy command which makes a trivial AST edit and writes it back
 - [ ] Write a dummy command which displays a select menu and then does the trivial AST
 

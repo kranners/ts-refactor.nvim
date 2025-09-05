@@ -13,7 +13,14 @@ Functionality based on [Nodash](https://github.com/kranners/nodash) and
 
 ## Installation
 
-`TODO: Provide installation instructions using Lazy & vanilla`
+### Using [lazy.nvim](https://github.com/folke/lazy.nvim#-plugin-spec)
+
+Install using a plugin spec like:
+```lua
+return {
+    "kranners/ts-refactor.nvim",
+}
+```
 
 ## Similar
 
