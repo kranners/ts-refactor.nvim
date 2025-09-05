@@ -18,9 +18,64 @@ Functionality based on [Nodash](https://github.com/kranners/nodash) and
 Install using a plugin spec like:
 ```lua
 return {
-    "kranners/ts-refactor.nvim",
+  "kranners/ts-refactor.nvim",
+  keys = {
+    {
+      "<Leader><Leader>",
+      function()
+        require("ts-refactor").open_action_menu()
+      end,
+      mode = "n",
+      desc = "Open action menu",
+    },
+  },
 }
 ```
+
+If having issues with the TypeScript grammar not loading automatically, disable
+lazy-loading for this plugin:
+```lua
+return {
+  "kranners/ts-refactor.nvim",
+  lazy = false,
+}
+```
+
+## Usage
+
+Show all available actions with either:
+```lua
+require("ts-refactor").show_action_menu()
+```
+
+Or by running `:TsRefactor`.
+
+### Available actions
+
+#### Replace if/else with early return
+
+Takes in an if statement like:
+```typescript
+if (condition) {
+  something;
+} else {
+  return else;
+}
+```
+
+And converts it to:
+```typescript
+if (condition) {
+  something;
+
+  return;
+} 
+
+return else;
+```
+
+If there is no return statement, one will be added, otherwise the
+existing one won't be touched.
 
 ## Similar
 

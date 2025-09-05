@@ -1,5 +1,9 @@
-local M = {}
+--- @class Action
+--- @field name string
+--- @field parse_nodes fun(): table|nil
+--- @field make_edits fun(): nil
 
-M.simplify_if_else = require("ts-refactor/actions/simplify-if-else")
-
-return M
+--- @type Action[]
+return {
+  require("ts-refactor/actions/simplify-if-else"),
+}

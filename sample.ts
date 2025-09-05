@@ -7,10 +7,11 @@ const displayRange = !start.isSame(end, "day")
   : start.format("ddd D MMM 'YY");
 
 if (condition) {
-  return something;
+  something;
 } else {
   return else;
-}
+} 
+
 
 if (condition) {
   return then;
