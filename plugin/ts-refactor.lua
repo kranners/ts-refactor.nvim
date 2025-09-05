@@ -7,7 +7,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.api.nvim_create_user_command("TsRefactor", function()
   local actions = require("ts-refactor/actions")
-  actions.simplify_if_else()
+  actions.simplify_if_else.make_edits()
 end, {
   desc = "ts-refactor.nvim",
 })

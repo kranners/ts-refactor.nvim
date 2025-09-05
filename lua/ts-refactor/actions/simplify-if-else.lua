@@ -1,4 +1,6 @@
-return function()
+local M = {}
+
+M.parse_nodes = function()
   local lib = require("ts-refactor/lib")
 
   local node = vim.treesitter.get_node()
@@ -22,15 +24,48 @@ return function()
     return
   end
 
-  -- local consequence = lib.force_get_named_child(if_statement, "consequence")
-  -- local contains_return = lib.find_child_of_type(consequence, "return_statement")
   local alternative_block = lib.find_child_of_type(alternative, "statement_block")
 
   if alternative_block == nil then
-    error("No block found in else statement")
+    vim.print("No block found in else statement")
+    return
   end
 
-  local alternative_contents = lib.get_block_contents(alternative_block)
+  local consequence = lib.force_get_named_child(if_statement, "consequence")
+  local consequence_block = lib.find_child_of_type(consequence, "statement_block")
+  local consequence_return = lib.find_child_of_type(consequence, "return_statement")
 
-  lib.replace_node_with_lines(alternative, { "", alternative_contents })
+  if consequence_block == nil then
+    vim.print("No block found in if statement")
+    return
+  end
+
+  return {
+    if_statement = if_statement,
+    alternative = alternative,
+    alternative_block = alternative_block,
+    consequence = consequence,
+    consequence_block = consequence_block,
+    consequence_return = consequence_return,
+  }
 end
+
+M.make_edits = function()
+  local lib = require("ts-refactor/lib")
+  local nodes = M.parse_nodes()
+
+  if nodes == nil then
+    return
+  end
+
+  if nodes.consequence_return == nil then
+    lib.add_lines_to_block(nodes.consequence_block, { "return;" })
+    nodes = lib.reparse(M.parse_nodes)
+  end
+
+  local alternative_contents = lib.get_block_contents(nodes.alternative_block)
+
+  lib.replace_node_with_lines(nodes.alternative, { "", alternative_contents })
+end
+
+return M

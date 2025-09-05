@@ -1,5 +1,16 @@
 local M = {}
 
+--- @param parse_nodes fun(): table|nil
+M.reparse = function(parse_nodes)
+  local nodes = parse_nodes()
+
+  if nodes == nil then
+    error("State of nodes changed!")
+  end
+
+  return nodes
+end
+
 --- @param node TSNode
 --- @param type string
 --- @return TSNode?
@@ -43,7 +54,7 @@ M.force_get_named_child = function(node, field_name)
   local next_index = next(field_children)
 
   if next_index == nil then
-    error("Child with field name " .. field_name .. " not found")
+    error("vim.ui.Child with field name " .. field_name .. " not found")
   end
 
   return field_children[next_index]
@@ -88,6 +99,21 @@ M.replace_node_with_lines = function(old, lines)
   local start_row, start_col, end_row, end_col = old:range()
 
   vim.api.nvim_buf_set_text(buf, start_row, start_col, end_row, end_col, lines)
+end
+
+--- @param block TSNode
+--- @param lines string[]
+M.add_lines_to_block = function(block, lines)
+  if block:type() ~= "statement_block" then
+    error("Expected a statement_block, got a " .. block:type())
+  end
+
+  local buf = vim.api.nvim_get_current_buf()
+  local block_text = vim.treesitter.get_node_text(block, buf)
+
+  local new_block_text = block_text:gsub("}%s*$", table.concat(lines, "\n") .. "\n}")
+  local new_block_lines = vim.split(new_block_text, "\n", { plain = true })
+  M.replace_node_with_lines(block, new_block_lines)
 end
 
 return M
