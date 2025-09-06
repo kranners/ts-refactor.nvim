@@ -52,7 +52,7 @@ Or by running `:TsRefactor`.
 
 ### Available actions
 
-#### Replace if/else with early return
+#### Simplify if/else
 
 Takes in an if statement like:
 ```typescript
@@ -69,13 +69,76 @@ if (condition) {
   something;
 
   return;
-} 
+}
 
 return else;
 ```
 
-If there is no return statement, one will be added, otherwise the
-existing one won't be touched.
+If the consequence of the if statement already has a return, then it will be
+preserved, like:
+```typescript
+// Takes in
+if (language === "en") {
+  return "Hey there";
+} else {
+  return "☟︎♏︎⍓︎ ⧫︎♒︎♏︎❒︎♏︎";
+}
+
+// Outputs
+if (language === "en") {
+  return "Hey there";
+} 
+
+return "☟︎♏︎⍓︎ ⧫︎♒︎♏︎❒︎♏︎"; 
+```
+
+#### Invert and simplify if/else
+
+Takes an if/else statement like:
+```typescript
+if (isAdmin) {
+  doTheHappyPath();
+
+  makeThingsHappen();
+
+  lotsOfCodeInThisOneBlock();
+} else {
+  console.error("Not an admin!");
+}
+```
+
+And converts it to:
+```typescript
+if (!(isAdmin)) {
+  console.error("Not an admin!");
+
+  return;
+}
+
+doTheHappyPath();
+
+makeThingsHappen();
+
+lotsOfCodeInThisOneBlock();
+```
+
+If the condition is already inverted, then the `!` will be removed instead.
+```typescript
+// Takes in
+if (!(condition !== a_different_thing)) {
+  something;
+} else {
+  return else;
+}
+
+// Outputs
+if ((condition !== a_different_thing)) {
+  return else;
+}
+
+something;
+```
+
 
 ## Similar
 

@@ -6,14 +6,19 @@ const displayRange = !start.isSame(end, "day")
     : start.format("ddd D") + " - " + end.format("ddd D MMM 'YY")
   : start.format("ddd D MMM 'YY");
 
-if (condition) {
-  something;
-} else {
+if (language === "en") {
+  return "Hey there";
+} 
+
+return "☟︎♏︎⍓︎ ⧫︎♒︎♏︎❒︎♏︎"; 
+
+if ((condition !== a_different_thing)) {
   return else;
 } 
 
+something; 
 
-if (condition) {
+if (condition !== !a_different_thing) {
   return then;
 }
 

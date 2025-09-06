@@ -1,6 +1,6 @@
 local M = {}
 
-M.name = "Simplify if/else"
+M.name = "Invert and simplify if/else"
 
 M.parse_nodes = function()
   local lib = require("ts-refactor/lib")
@@ -19,6 +19,13 @@ M.parse_nodes = function()
     return
   end
 
+  local condition = lib.get_named_child(if_statement, "condition")
+
+  if condition == nil then
+    -- vim.print("If statement has no condition (how?)")
+    return
+  end
+
   local alternative = lib.get_named_child(if_statement, "alternative")
 
   if alternative == nil then
@@ -27,6 +34,7 @@ M.parse_nodes = function()
   end
 
   local alternative_block = lib.deeply_find_child_of_type(alternative, "statement_block")
+  local alternative_return = lib.deeply_find_child_of_type(alternative, "return_statement")
 
   if alternative_block == nil then
     -- vim.print("No block found in else statement")
@@ -35,7 +43,6 @@ M.parse_nodes = function()
 
   local consequence = lib.force_get_named_child(if_statement, "consequence")
   local consequence_block = lib.deeply_find_child_of_type(consequence, "statement_block")
-  local consequence_return = lib.deeply_find_child_of_type(consequence, "return_statement")
 
   if consequence_block == nil then
     -- vim.print("No block found in if statement")
@@ -44,36 +51,42 @@ M.parse_nodes = function()
 
   return {
     if_statement = if_statement,
+    condition = condition,
     alternative = alternative,
     alternative_block = alternative_block,
+    alternative_return = alternative_return,
     consequence = consequence,
     consequence_block = consequence_block,
-    consequence_return = consequence_return,
   }
 end
 
 M.make_edits = function()
   local lib = require("ts-refactor/lib")
+
   local nodes = M.parse_nodes()
 
   if nodes == nil then
     return
   end
 
-  if nodes.consequence_return == nil then
+  lib.invert_boolean_statement(nodes.condition)
+  nodes = lib.reparse(M.parse_nodes)
+
+  if nodes.alternative_return == nil then
     local buf = vim.api.nvim_get_current_buf()
-    local block_text = vim.treesitter.get_node_text(nodes.consequence_block, buf)
-
-    local second_line = block_text:match("\n([^\n]*)")
-
+    local alternative_block_text = vim.treesitter.get_node_text(nodes.alternative_block, buf)
+    local second_line = alternative_block_text:match("\n([^\n]*)")
     local indentation = second_line:match("^(%s*)")
 
-    lib.add_lines_to_block(nodes.consequence_block, { "", indentation .. "return;" })
+    lib.add_lines_to_block(nodes.alternative_block, { "", indentation .. "return;" })
     nodes = lib.reparse(M.parse_nodes)
   end
 
-  local alternative_contents = lib.get_block_contents(nodes.alternative_block)
-  lib.replace_node_with_text(nodes.alternative, "\n\n" .. alternative_contents)
+  local consequence_contents = lib.get_block_contents(nodes.consequence_block)
+
+  lib.replace_node_with_node(nodes.alternative_block, nodes.consequence_block)
+  nodes = lib.reparse(M.parse_nodes)
+  lib.replace_node_with_text(nodes.alternative, "\n\n" .. consequence_contents)
 end
 
 return M

@@ -6,4 +6,5 @@
 --- @type Action[]
 return {
   require("ts-refactor/actions/simplify-if-else"),
+  require("ts-refactor/actions/invert-and-simplify-if-else"),
 }

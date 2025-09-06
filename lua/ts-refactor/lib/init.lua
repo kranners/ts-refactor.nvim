@@ -63,13 +63,26 @@ end
 --- @param node TSNode
 --- @param type string
 --- @return TSNode?
-M.find_child_of_type = function(node, type)
+M.get_child_of_type = function(node, type)
+  for child in node:iter_children() do
+    if child:type() == type then
+      return child
+    end
+  end
+
+  return nil
+end
+
+--- @param node TSNode
+--- @param type string
+--- @return TSNode?
+M.deeply_find_child_of_type = function(node, type)
   if node:type() == type then
     return node
   end
 
   for child in node:iter_children() do
-    if M.find_child_of_type(child, type) ~= nil then
+    if M.deeply_find_child_of_type(child, type) ~= nil then
       return child
     end
   end
@@ -101,6 +114,23 @@ M.replace_node_with_lines = function(old, lines)
   vim.api.nvim_buf_set_text(buf, start_row, start_col, end_row, end_col, lines)
 end
 
+--- @param old TSNode
+--- @param text string
+M.replace_node_with_text = function(old, text)
+  local lines = vim.split(text, "\n", { plain = true })
+  return M.replace_node_with_lines(old, lines)
+end
+
+--- @param source TSNode
+--- @param destination TSNode
+M.replace_node_with_node = function(source, destination)
+  local buf = vim.api.nvim_get_current_buf()
+  local source_node_text = vim.treesitter.get_node_text(source, buf)
+  local source_node_lines = vim.split(source_node_text, "\n", { plain = true })
+
+  M.replace_node_with_lines(destination, source_node_lines)
+end
+
 --- @param block TSNode
 --- @param lines string[]
 M.add_lines_to_block = function(block, lines)
@@ -114,6 +144,54 @@ M.add_lines_to_block = function(block, lines)
   local new_block_text = block_text:gsub("}%s*$", table.concat(lines, "\n") .. "\n}")
   local new_block_lines = vim.split(new_block_text, "\n", { plain = true })
   M.replace_node_with_lines(block, new_block_lines)
+end
+
+--- @param statement TSNode
+M.is_inverted_expression = function(statement)
+  -- An inverted statement has 3 children
+  -- { "(", unary_expression, ")" }
+
+  if statement:child_count() ~= 3 then
+    vim.print("statement has " .. statement:child_count() .. " children")
+    return false
+  end
+
+  local unary_expression = M.get_child_of_type(statement, "unary_expression")
+
+  if unary_expression == nil then
+    vim.print("there is no unary expression")
+    return false
+  end
+
+  local operator = M.get_named_child(unary_expression, "operator")
+
+  if operator == nil then
+    vim.print("there is no operator (somehow)")
+    return false
+  end
+
+  return operator:type() == "!"
+end
+
+--- @param statement TSNode
+M.invert_boolean_statement = function(statement)
+  local buf = vim.api.nvim_get_current_buf()
+  local statement_text = vim.treesitter.get_node_text(statement, buf)
+
+  if M.is_inverted_expression(statement) then
+    vim.print("this IS ACTUALLY inverted")
+
+    local uninverted_statement_text = statement_text:gsub("!", "", 1)
+    local uninverted_statement_lines = vim.split(uninverted_statement_text, "\n", { plain = true })
+    M.replace_node_with_lines(statement, uninverted_statement_lines)
+    return
+  end
+
+  vim.print("this isnt inverted")
+
+  local inverted_statement_text = "(!" .. statement_text .. ")"
+  local inverted_statement_lines = vim.split(inverted_statement_text, "\n", { plain = true })
+  return M.replace_node_with_lines(statement, inverted_statement_lines)
 end
 
 return M
