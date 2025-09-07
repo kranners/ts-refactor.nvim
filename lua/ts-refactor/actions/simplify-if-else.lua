@@ -61,18 +61,18 @@ M.make_edits = function()
   end
 
   if nodes.consequence_return == nil then
-    local block_text = lib.node_text(nodes.consequence_block)
+    local return_indentation = lib.node_indentation(nodes.if_statement)
+    local new_return_statement = return_indentation .. "return;"
 
-    local second_line = block_text:match("\n([^\n]*)")
-
-    local indentation = second_line:match("^(%s*)")
-
-    lib.add_lines_to_block(nodes.consequence_block, { "", indentation .. "return;" })
+    lib.add_lines_to_block(nodes.consequence_block, { "", new_return_statement })
     nodes = lib.reparse(M.parse_nodes)
   end
 
   local alternative_contents = lib.get_block_contents(nodes.alternative_block)
-  lib.replace_node_with_text(nodes.alternative, "\n\n" .. alternative_contents)
+
+  local alternative_replacement = "\n\n" .. lib.node_indentation(nodes.if_statement) .. alternative_contents
+
+  lib.replace_node_with_text(nodes.alternative, alternative_replacement)
 end
 
 return M
