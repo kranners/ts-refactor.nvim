@@ -61,8 +61,7 @@ M.make_edits = function()
   end
 
   if nodes.consequence_return == nil then
-    local buf = vim.api.nvim_get_current_buf()
-    local block_text = vim.treesitter.get_node_text(nodes.consequence_block, buf)
+    local block_text = lib.node_text(nodes.consequence_block)
 
     local second_line = block_text:match("\n([^\n]*)")
 

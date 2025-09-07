@@ -1,5 +1,23 @@
 local M = {}
 
+--- @param node TSNode
+M.node_text = function(node)
+  local buf = vim.api.nvim_get_current_buf()
+  return vim.treesitter.get_node_text(node, buf)
+end
+
+--- @param node TSNode
+M.node_indentation = function(node)
+  local start_row = node:start() -- or use tsnode:range() for more info
+  local line = vim.api.nvim_buf_get_lines(0, start_row, start_row + 1, false)[1]
+  if not line then
+    return ""
+  end
+  -- Match and return the leading whitespace characters only
+  local leading_ws = line:match("^(%s*)")
+  return leading_ws or ""
+end
+
 --- @param parse_nodes fun(): table|nil
 M.reparse = function(parse_nodes)
   local nodes = parse_nodes()
@@ -90,6 +108,24 @@ M.deeply_find_child_of_type = function(node, type)
   return nil
 end
 
+--- @param node TSNode
+M.dedented_node_text = function(node)
+  local indent_unit = M.get_indentation_unit()
+
+  local lines = {}
+  for line in M.node_text(node):gmatch("([^\n]*)\n?") do
+    table.insert(lines, line)
+  end
+
+  for i, line in ipairs(lines) do
+    if line:sub(1, #indent_unit) == indent_unit then
+      lines[i] = line:sub(#indent_unit + 1)
+    end
+  end
+
+  return table.concat(lines, "\n")
+end
+
 --- @param block TSNode
 --- @return string
 M.get_block_contents = function(block)
@@ -97,9 +133,7 @@ M.get_block_contents = function(block)
     error("Expected a statement_block, got a " .. block:type())
   end
 
-  local buf = vim.api.nvim_get_current_buf()
-  local block_text = vim.treesitter.get_node_text(block, buf)
-
+  local block_text = M.dedented_node_text(block)
   local inner_content = block_text:gsub("^%s*{", ""):gsub("}%s*$", "")
   return vim.trim(inner_content)
 end
@@ -124,8 +158,7 @@ end
 --- @param source TSNode
 --- @param destination TSNode
 M.replace_node_with_node = function(source, destination)
-  local buf = vim.api.nvim_get_current_buf()
-  local source_node_text = vim.treesitter.get_node_text(source, buf)
+  local source_node_text = M.node_text(source)
   local source_node_lines = vim.split(source_node_text, "\n", { plain = true })
 
   M.replace_node_with_lines(destination, source_node_lines)
@@ -138,8 +171,7 @@ M.add_lines_to_block = function(block, lines)
     error("Expected a statement_block, got a " .. block:type())
   end
 
-  local buf = vim.api.nvim_get_current_buf()
-  local block_text = vim.treesitter.get_node_text(block, buf)
+  local block_text = M.node_text(block)
 
   local new_block_text = block_text:gsub("}%s*$", table.concat(lines, "\n") .. "\n}")
   local new_block_lines = vim.split(new_block_text, "\n", { plain = true })
@@ -175,8 +207,7 @@ end
 
 --- @param statement TSNode
 M.invert_boolean_statement = function(statement)
-  local buf = vim.api.nvim_get_current_buf()
-  local statement_text = vim.treesitter.get_node_text(statement, buf)
+  local statement_text = M.node_text(statement)
 
   if M.is_inverted_expression(statement) then
     vim.print("this IS ACTUALLY inverted")
@@ -192,6 +223,17 @@ M.invert_boolean_statement = function(statement)
   local inverted_statement_text = "(!" .. statement_text .. ")"
   local inverted_statement_lines = vim.split(inverted_statement_text, "\n", { plain = true })
   return M.replace_node_with_lines(statement, inverted_statement_lines)
+end
+
+M.get_indentation_unit = function()
+  local shiftwidth = vim.api.nvim_get_option_value("shiftwidth", {})
+  local use_spaces = vim.api.nvim_get_option_value("expandtab", {})
+
+  if use_spaces then
+    return string.rep(" ", shiftwidth)
+  end
+
+  return "\t"
 end
 
 return M

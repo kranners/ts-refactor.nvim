@@ -73,20 +73,20 @@ M.make_edits = function()
   nodes = lib.reparse(M.parse_nodes)
 
   if nodes.alternative_return == nil then
-    local buf = vim.api.nvim_get_current_buf()
-    local alternative_block_text = vim.treesitter.get_node_text(nodes.alternative_block, buf)
-    local second_line = alternative_block_text:match("\n([^\n]*)")
-    local indentation = second_line:match("^(%s*)")
+    local return_indentation = lib.node_indentation(nodes.if_statement)
+    local new_return_statement = return_indentation .. "return;"
 
-    lib.add_lines_to_block(nodes.alternative_block, { "", indentation .. "return;" })
+    lib.add_lines_to_block(nodes.alternative_block, { "", new_return_statement })
     nodes = lib.reparse(M.parse_nodes)
   end
 
   local consequence_contents = lib.get_block_contents(nodes.consequence_block)
 
+  local alternative_replacement = "\n\n" .. lib.node_indentation(nodes.if_statement) .. consequence_contents
+
   lib.replace_node_with_node(nodes.alternative_block, nodes.consequence_block)
   nodes = lib.reparse(M.parse_nodes)
-  lib.replace_node_with_text(nodes.alternative, "\n\n" .. consequence_contents)
+  lib.replace_node_with_text(nodes.alternative, alternative_replacement)
 end
 
 return M
