@@ -77,8 +77,6 @@ M.make_edits = function()
 
   local ternary_expression_indentation = lib.node_indentation(nodes.ternary_expression)
 
-  vim.print("'" .. ternary_expression_indentation .. "'")
-
   local ternary_as_if_else = construct_if_else_statement(nodes.ternary_expression, ternary_expression_indentation, true)
 
   -- need to wrap the resulting statement in an iife to make the returns make sense

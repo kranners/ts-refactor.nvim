@@ -8,35 +8,35 @@ M.parse_nodes = function()
   local node = vim.treesitter.get_node()
 
   if node == nil then
-    vim.print("Cursor is not on a node.")
+    -- vim.print("Cursor is not on a node.")
     return
   end
 
   local variable_declarator = lib.get_first_matching_ancestor(node, "variable_declarator")
 
   if variable_declarator == nil then
-    vim.print("Not on a variable declaration")
+    -- vim.print("Not on a variable declaration")
     return
   end
 
   local identifer = lib.get_named_child(variable_declarator, "name")
 
   if identifer == nil then
-    vim.print("No name in variable declaration")
+    -- vim.print("No name in variable declaration")
     return
   end
 
   local call_expression = lib.get_named_child(variable_declarator, "value")
 
   if call_expression == nil then
-    vim.print("No value in variable declaration")
+    -- vim.print("No value in variable declaration")
     return
   end
 
   local parenthesized_expression = lib.get_named_child(call_expression, "function")
 
   if parenthesized_expression == nil then
-    vim.print("No parenthesized_expression in call_expression")
+    -- vim.print("No parenthesized_expression in call_expression")
     return
   end
 
@@ -45,7 +45,7 @@ M.parse_nodes = function()
   end
 
   if call_expression:type() ~= "call_expression" then
-    vim.print("Value of variable declaration is not a call expression")
+    -- vim.print("Value of variable declaration is not a call expression")
     return
   end
 

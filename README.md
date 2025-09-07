@@ -8,6 +8,10 @@
   </p>
 </p>
 
+<p align="center">
+ <img src="./assets/demo.gif" alt="A demonstration converting a lengthy ternary with a nicer function" />
+</p>
+
 Functionality based on [Nodash](https://github.com/kranners/nodash) and
 [eslint-plugin-nodash](https://github.com/kranners/eslint-plugin-nodash).
 
