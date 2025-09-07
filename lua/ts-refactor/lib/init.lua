@@ -138,6 +138,18 @@ M.get_block_contents = function(block)
   return vim.trim(inner_content)
 end
 
+--- @param expression TSNode
+--- @return string
+M.unwrapped_parenthesized_expression = function(expression)
+  if expression:type() ~= "parenthesized_expression" then
+    error("Expected a parenthesized_expression, got a " .. expression:type())
+  end
+
+  local expression_text = M.node_text(expression)
+  local inner_content = expression_text:gsub("^%s*%(", ""):gsub("%)%s*$", "")
+  return vim.trim(inner_content)
+end
+
 --- @param old TSNode
 --- @param lines string[]
 M.replace_node_with_lines = function(old, lines)

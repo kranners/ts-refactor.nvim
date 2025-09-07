@@ -45,12 +45,6 @@ local function construct_if_else_statement(ternary_expression, previous_indentat
     return string.format("return %s;", lib.node_text(node))
   end
 
-  -- 1u
-  -- 4u + 3
-  -- 6u + 4
-  -- wtf??
-  --
-
   local get_first_if_indentation = function()
     if is_first_expression then
       return lib.get_indentation_unit()
