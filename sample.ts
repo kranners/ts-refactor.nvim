@@ -5,3 +5,9 @@ const formattedTime = !start.isSame(end, "day")
       : start.format("ddd D MMM") + " - " + end.format("ddd D MMM 'YY")
     : start.format("ddd D") + " - " + end.format("ddd D MMM 'YY")
   : start.format("ddd D MMM 'YY");
+
+const menu = (() => {
+  const info = doSomeLogic();
+
+  return constructMenu(info);
+})();

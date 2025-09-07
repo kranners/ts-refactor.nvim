@@ -1,6 +1,6 @@
 <h1>
 <p align="center">
-    🤓
+    ☝️🤓
   <br>ts-refactor.nvim
 </h1>
   <p align="center">
@@ -12,8 +12,8 @@
  <img src="./assets/demo.gif" alt="A demonstration converting a lengthy ternary with a nicer function" />
 </p>
 
-Functionality based on [Nodash](https://github.com/kranners/nodash) and
-[eslint-plugin-nodash](https://github.com/kranners/eslint-plugin-nodash).
+This is a few Treesitter-based code editing actions for TS and JS with a select
+menu to wrap them together.
 
 ## Installation
 
@@ -143,13 +143,62 @@ if ((condition !== a_different_thing)) {
 something;
 ```
 
+#### Convert ternary to if/else statements
+
+Takes in an arbitrarily nested ternary expression, like:
+```typescript
+const formattedTime = !start.isSame(end, "day")
+  ? !start.isSame(end, "month")
+    ? !start.isSame(end, "year")
+      ? start.format("ddd D MMM 'YY") + " - " + end.format("ddd D MMM 'YY")
+      : start.format("ddd D MMM") + " - " + end.format("ddd D MMM 'YY")
+    : start.format("ddd D") + " - " + end.format("ddd D MMM 'YY")
+  : start.format("ddd D MMM 'YY");
+```
+
+And converts it into an IIFE with if/else statements that return like:
+```typescript
+const formattedTime = (() => {
+  if (!start.isSame(end, "day")) {
+    if (!start.isSame(end, "month")) {
+      if (!start.isSame(end, "year")) {
+        return start.format("ddd D MMM 'YY") + " - " + end.format("ddd D MMM 'YY");
+      } else {
+        return start.format("ddd D MMM") + " - " + end.format("ddd D MMM 'YY");
+      }
+    } else {
+      return start.format("ddd D") + " - " + end.format("ddd D MMM 'YY");
+    }
+  } else {
+    return start.format("ddd D MMM 'YY");
+  }
+})();
+```
+
+#### Extract IIFE to arrow function and call expression
+
+Takes in any variable declared as the result of an IIFE, like:
+```typescript
+const menu = (() => {
+  const info = doSomeLogic();
+
+  return constructMenu(info);
+})();
+```
+
+And converts it into a seperate function and a call expression:
+```typescript
+const getMenu = () => {
+  const info = doSomeLogic();
+
+  return constructMenu(info);
+};
+
+const menu = getMenu();
+```
+
 
 ## Similar
 
-A very lazy search turned up:
-- [ThePrimeagen/refactoring.nvim: The Refactoring library based off the Refactoring book by Martin Fowler](https://github.com/ThePrimeagen/refactoring.nvim)
-- [nvim-treesitter/nvim-treesitter-refactor: Refactor module for nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter-refactor)
-- [pmizio/typescript-tools.nvim: ⚡ TypeScript integration NeoVim deserves ⚡](https://github.com/pmizio/typescript-tools.nvim)
-- [tiyashbasu/refactor.nvim: A simple neovim plugin for refactoring code](https://github.com/tiyashbasu/refactor.nvim)
-- [synic/refactorex.nvim: Neovim plugin for RefactorEx](https://github.com/synic/refactorex.nvim)
+[ts-node-action](https://github.com/CKolkey/ts-node-action) - Custom language-agnostic treesitter actions
 
