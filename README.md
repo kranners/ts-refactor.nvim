@@ -197,6 +197,40 @@ const getMenu = () => {
 const menu = getMenu();
 ```
 
+#### Replace lodash mapping function with ES equivalent
+
+Takes in a lodash mapping function call expression, like:
+```typescript
+const numbers = [2, 3, 5, 21];
+
+// Supports if the function was imported specifically
+const doubled = map(numbers, (number) => {
+  return number * 2;
+});
+
+// Or if the lodash module was imported as a whole
+const doubled = _.map(numbers, (number) => number * 2);
+
+_.forEach(numbers, (number) => push_to_cloud(number));
+
+const greaterThanTwo = _.filter(numbers, (number) => number > 2);
+```
+
+And converts it into its' equivalent ES function:
+```typescript
+const numbers = [2, 3, 5, 21];
+
+const doubled = numbers.map((number) => {
+  return number * 2;
+});
+
+const doubled = numbers.map((number) => number * 2);
+
+numbers.forEach((number) => push_to_cloud(number));
+
+const greaterThanTwo = numbers.filter((number) => number > 2);
+```
+
 
 ## Similar
 

@@ -40,6 +40,10 @@ M.parse_nodes = function()
     return
   end
 
+  if parenthesized_expression:type() ~= "parenthesized_expression" then
+    return
+  end
+
   if identifer:type() ~= "identifier" then
     return
   end

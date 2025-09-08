@@ -1,3 +1,15 @@
+const numbers = [2, 3, 5, 21];
+
+const doubled = map(numbers, (number) => {
+  return number * 2;
+});
+
+const doubled = _.map(numbers, (number) => number * 2);
+
+_.forEach(numbers, (number) => push_to_cloud(number));
+
+const greaterThanTwo = _.filter(numbers, (number) => number > 2);
+
 const formattedTime = !start.isSame(end, "day")
   ? !start.isSame(end, "month")
     ? !start.isSame(end, "year")
