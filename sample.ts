@@ -1,3 +1,16 @@
+function getCardContent(cardType) {
+  switch (cardType) {
+    case "banana":
+    case "menu":
+      console.log("No content");
+      break;
+    case "apple":
+      return "Apples are red and crunchy. Usually. Maybe.";
+    default:
+      return "Click here to buy fantastic products:";
+  }
+}
+
 const numbers = [2, 3, 5, 21];
 
 const doubled = map(numbers, (number) => {

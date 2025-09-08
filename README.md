@@ -15,6 +15,9 @@
 This is a few Treesitter-based code editing actions for TS and JS with a select
 menu to wrap them together.
 
+> [!WARNING]
+> Can cause breaking changes. Check that everything still works before moving on!
+
 ## Installation
 
 ### Using [lazy.nvim](https://github.com/folke/lazy.nvim#-plugin-spec)
@@ -231,6 +234,38 @@ numbers.forEach((number) => push_to_cloud(number));
 const greaterThanTwo = numbers.filter((number) => number > 2);
 ```
 
+#### Convert case switch into if statements
+
+Takes in a case switch like:
+```typescript
+function getCardContent(cardType) {
+  switch (cardType) {
+    case "banana":
+    case "menu":
+      console.log("No content");
+      break;
+    case "apple":
+      return "Apples are red and crunchy. Usually. Maybe.";
+    default:
+      return "Click here to buy fantastic products:";
+  }
+}
+```
+
+And converts it into a series of if statements like:
+```typescript
+function getCardContent(cardType) {
+  if (cardType === "banana" || cardType === "menu") {
+    console.log("No content");
+  }
+
+  if (cardType === "apple") {
+    return "Apples are red and crunchy. Usually. Maybe.";
+  }
+
+  return "Click here to buy fantastic products:";
+}
+```
 
 ## Similar
 

@@ -241,4 +241,20 @@ M.get_indentation_unit = function()
   return "\t"
 end
 
+--- @param node TSNode
+M.node_children_without_first_or_last = function(node)
+  local children = {}
+  local count = node:child_count()
+
+  if count < 3 then
+    return {}
+  end
+
+  for i = 1, count - 2 do
+    table.insert(children, node:child(i))
+  end
+
+  return children
+end
+
 return M
